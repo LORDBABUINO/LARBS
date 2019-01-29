@@ -120,6 +120,15 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 	sudo -u "$name" cp -rfT "$dir"/gitrepo "$2"
 	}
 
+createDotLinks(){
+	ls -A | \
+	egrep '^\.' | \
+	egrep -v '.git|.readme.mom' | \
+	while read file; do
+		ln -s ${1}/$file ${2}/${file}
+	done
+}
+
 serviceinit() { for service in "$@"; do
 	dialog --infobox "Enabling \"$service\"..." 4 40
 	systemctl enable "$service"
@@ -189,7 +198,10 @@ manualinstall $aurhelper || error "Failed to install AUR helper."
 installationloop
 
 # Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name" || error "Programs have installed, but dotfiles failed to deploy."
+putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
+
+# Create links for dotfiles
+createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
 
 # Install the LARBS Firefox profile in ~/.mozilla/firefox/
 putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
