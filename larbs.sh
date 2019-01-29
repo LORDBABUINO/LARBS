@@ -125,7 +125,7 @@ createDotLinks(){
 	egrep '^\.' | \
 	egrep -v '.git|.readme.mom' | \
 	while read file; do
-		ln -s ${1}/$file ${2}/${file}
+		ln -s ${1}/$file /home/${name}/${file}
 	done
 }
 
@@ -204,7 +204,7 @@ putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have instal
 createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
 
 # Install the LARBS Firefox profile in ~/.mozilla/firefox/
-putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
+#putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
 
 # Pulseaudio, if/when initially installed, often needs a restart to work immediately.
 [ -f /usr/bin/pulseaudio ] && resetpulse
@@ -220,10 +220,13 @@ serviceinit NetworkManager cronie
 # Most important command! Get rid of the beep!
 systembeepoff
 
+# Make user use docker without password
+sudo gpasswd -a $name docker
+
 # This line, overwriting the `newperms` command above will allow the user to run
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
 newperms "%wheel ALL=(ALL) ALL #LARBS
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm"
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm, /usr/bin/systemctl start docker, /usr/bin/systemctl stop docker"
 
 # Last message! Install complete!
 finalize
