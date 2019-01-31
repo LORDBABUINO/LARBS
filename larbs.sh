@@ -121,7 +121,7 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 	}
 
 createDotLinks(){
-	ls -A | \
+	ls -A $1 | \
 	egrep '^\.' | \
 	egrep -v '.git|.readme.mom' | \
 	while read file; do
@@ -172,11 +172,17 @@ preinstallmsg || error "User exited."
 
 adduserandpass || error "Error adding username and/or password."
 
+# Install the dotfiles in the user's home directory
+putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
+
+# Create links for dotfiles
+createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
+
 # Refresh Arch keyrings.
 refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
 
 dialog --title "LARBS Installation" --infobox "Installing \`basedevel\` and \`git\` for installing other software." 5 70
-pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+pacman --noconfirm --needed -S base-devel >/dev/null 2>&1
 [ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
 
 # Allow user to run sudo without password. Since AUR programs must be installed
@@ -196,12 +202,6 @@ manualinstall $aurhelper || error "Failed to install AUR helper."
 # the user has been created and has priviledges to run sudo without a password
 # and all build dependencies are installed.
 installationloop
-
-# Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
-
-# Create links for dotfiles
-createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
 
 # Install the LARBS Firefox profile in ~/.mozilla/firefox/
 #putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
