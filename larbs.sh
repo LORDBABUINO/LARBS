@@ -123,7 +123,7 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 createDotLinks(){
 	ls -A $1 | \
 	egrep '^\.' | \
-	egrep -v '.git|.readme.mom' | \
+	egrep -v '.git\b|.readme.mom' | \
 	while read file; do
 		ln -s ${1}/$file /home/${name}/${file}
 	done
@@ -154,7 +154,7 @@ finalize(){ \
 ### This is how everything happens in an intuitive format and order.
 
 # Check if user is root on Arch distro. Install dialog.
-pacman -Syu --noconfirm --needed dialog ||  error "Are you sure you're running this as the root user? Are you sure you're using an Arch-based distro? ;-) Are you sure you have an internet connection? Are you sure your Arch keyring is updated?"
+pacman -Syu --noconfirm --needed dialog git || error "Are you sure you're running this as the root user? Are you sure you're using an Arch-based distro? ;-) Are you sure you have an internet connection? Are you sure your Arch keyring is updated?"
 
 # Welcome user.
 welcomemsg || error "User exited."
