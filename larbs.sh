@@ -111,6 +111,12 @@ installationloop() { \
 		esac
 	done < /tmp/progs.csv ;}
 
+install_omf() {
+	curl -L https://get.oh-my.fish > install
+	sudo -u "$name" fish install --noninteractive
+	rm install
+}
+
 putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
 	dialog --infobox "Downloading and installing config files..." 4 60
 	dir=$(mktemp -d)
@@ -210,6 +216,9 @@ manualinstall $aurhelper || error "Failed to install AUR helper."
 # the user has been created and has priviledges to run sudo without a password
 # and all build dependencies are installed.
 installationloop
+
+# Installs Oh-my-fish, a fish framework
+install_omf
 
 # Install the LARBS Firefox profile in ~/.mozilla/firefox/
 #putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
