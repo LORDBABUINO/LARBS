@@ -120,6 +120,11 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 	sudo -u "$name" cp -rfT "$dir"/gitrepo "$2"
 	}
 
+clearDotfiles(){
+	rm /home/$name/.bashrc
+	rm /home/$name/.bash_profile
+}
+
 createDotLinks(){
 	ls -A $1 | \
 	egrep '^\.' | \
@@ -174,6 +179,9 @@ adduserandpass || error "Error adding username and/or password."
 
 # Install the dotfiles in the user's home directory
 putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
+
+# Clear dotfilfes before link dotfiles
+clearDotfiles || error "Error while clearing dotfiles"
 
 # Create links for dotfiles
 createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
