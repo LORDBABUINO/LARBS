@@ -117,6 +117,14 @@ install_omf() {
 	rm install
 }
 
+configure_fish() {
+	install_omf
+	echo -e '#!/bin/bash -l\nexec -l fish "$@"' > /usr/local/bin/fishlogin
+	chmod +x /usr/local/bin/fishlogin
+	echo /usr/local/bin/fishlogin | tee -a /etc/shells
+	usermod -s /usr/local/bin/fishlogin $name
+}
+
 putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
 	dialog --infobox "Downloading and installing config files..." 4 60
 	dir=$(mktemp -d)
@@ -217,8 +225,8 @@ manualinstall $aurhelper || error "Failed to install AUR helper."
 # and all build dependencies are installed.
 installationloop
 
-# Installs Oh-my-fish, a fish framework
-install_omf
+# Configure fish
+configure_fish
 
 # Install the LARBS Firefox profile in ~/.mozilla/firefox/
 #putgitrepo "https://github.com/LukeSmithxyz/mozillarbs.git" "/home/$name/.mozilla/firefox"
