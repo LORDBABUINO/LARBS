@@ -119,6 +119,7 @@ install_omf() {
 
 configure_fish() {
 	install_omf
+	sudo -u "$name" fish -c "omf install eclm"
 	echo -e '#!/bin/bash -l\nexec -l fish "$@"' > /usr/local/bin/fishlogin
 	chmod +x /usr/local/bin/fishlogin
 	echo /usr/local/bin/fishlogin | tee -a /etc/shells
