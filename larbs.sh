@@ -143,7 +143,7 @@ clearDotfiles(){
 createDotLinks(){
 	ls -A $1 | \
 	egrep '^\.' | \
-	egrep -v '.git\b|.readme.mom|.gitmodules|.gitignore' | \
+	egrep -v '.git\b|.gitmodules|.gitignore' | \
 	while read file; do
 		ln -s ${1}/$file /home/${name}/${file}
 	done
