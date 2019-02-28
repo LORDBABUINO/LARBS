@@ -135,15 +135,21 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
 	}
 
+getDotfilesNames() {
+	ls -A $1 | \
+	egrep '^\.' | \
+	egrep -v '.git\b|.gitmodules|.gitignore'
+}
+
 clearDotfiles(){
-	rm /home/$name/.bashrc
-	rm /home/$name/.bash_profile
+	getDotfilesNames | \
+	while read file; do
+		[ -e /home/${name}/${file} ] && rm -r /home/${name}/${file}
+	done
 }
 
 createDotLinks(){
-	ls -A $1 | \
-	egrep '^\.' | \
-	egrep -v '.git\b|.gitmodules|.gitignore' | \
+	getDotfilesNames | \
 	while read file; do
 		ln -s ${1}/$file /home/${name}/${file}
 	done
@@ -191,15 +197,6 @@ preinstallmsg || error "User exited."
 ### The rest of the script requires no user input.
 
 adduserandpass || error "Error adding username and/or password."
-
-# Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
-
-# Clear dotfilfes before link dotfiles
-clearDotfiles || error "Error while clearing dotfiles"
-
-# Create links for dotfiles
-createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
 
 # Refresh Arch keyrings.
 refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
@@ -253,6 +250,15 @@ sudo gpasswd -a $name docker
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
 newperms "%wheel ALL=(ALL) ALL #LARBS
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm, /usr/bin/systemctl start docker, /usr/bin/systemctl stop docker"
+
+# Install the dotfiles in the user's home directory
+putgitrepo "$dotfilesrepo" "/home/$name/dotfiles" || error "Programs have installed, but dotfiles failed to deploy."
+
+# Clear dotfilfes before link dotfiles
+clearDotfiles || error "Error while clearing dotfiles"
+
+# Create links for dotfiles
+createDotLinks "/home/$name/dotfiles" || error "Error while creating links to dotfiles"
 
 # Last message! Install complete!
 finalize
