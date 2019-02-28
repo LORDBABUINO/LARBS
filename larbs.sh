@@ -85,7 +85,7 @@ maininstall() { # Installs all needed programs from main repo.
 gitmakeinstall() {
 	dir=$(mktemp -d)
 	dialog --title "LARBS Installation" --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
-	git clone --depth 1 "$1" "$dir" >/dev/null 2>&1
+	git clone "$1" "$dir" >/dev/null 2>&1
 	cd "$dir" || exit
 	make >/dev/null 2>&1
 	make install >/dev/null 2>&1
@@ -131,7 +131,7 @@ putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriti
 	dir=$(mktemp -d)
 	[ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
 	chown -R "$name:wheel" "$dir"
- 	sudo -u "$name" git clone --depth 1 --recurse-submodules "$1" "$dir/gitrepo" >/dev/null 2>&1 &&
+ 	sudo -u "$name" git clone --recurse-submodules "$1" "$dir/gitrepo" >/dev/null 2>&1 &&
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
 	}
 
